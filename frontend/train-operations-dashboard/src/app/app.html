@@ -1,0 +1,84 @@
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">🚆</div>
+      <div>
+        <strong>RailOps</strong>
+        <span>Operations Center</span>
+      </div>
+    </div>
+
+    <div class="section-label">MAIN MENU</div>
+    <nav>
+      <button [class.active]="activeNav === 'Dashboard'" (click)="setNav('Dashboard')"><span>▦</span> Dashboard</button>
+      <button [class.active]="activeNav === 'Trains'" (click)="setNav('Trains')"><span>🚆</span> Trains</button>
+      <button [class.active]="activeNav === 'Coaches'" (click)="setNav('Coaches')"><span>▤</span> Coaches</button>
+      <button [class.active]="activeNav === 'Stations'" (click)="setNav('Stations')"><span>⌖</span> Stations</button>
+      <button [class.active]="activeNav === 'Routes'" (click)="setNav('Routes')"><span>⇄</span> Routes</button>
+      <button [class.active]="activeNav === 'Alerts'" (click)="setNav('Alerts')"><span>⚠</span> Alerts <b class="nav-badge">3</b></button>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="system-status"><i></i><span><strong>System Operational</strong><small>All services online</small></span></div>
+      <div class="user"><div class="avatar">SD</div><span><strong>Operations Admin</strong><small>Administrator</small></span><span class="dots">•••</span></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <div class="breadcrumb">Railway Operations / <span>Overview</span></div>
+        <h1>{{ activeNav }}</h1>
+      </div>
+      <div class="top-actions">
+        <div class="live"><i></i> Live monitoring</div>
+        <button class="icon-btn" aria-label="Notifications">♢<span class="notification-dot"></span></button>
+        <div class="top-avatar">SD</div>
+      </div>
+    </header>
+
+    <section class="content" *ngIf="activeNav === 'Dashboard'; else sectionPlaceholder">
+      <div class="welcome-row">
+        <div><h2>Good evening, Operations Team</h2><p>Here's the current state of the railway network.</p></div>
+        <div class="last-updated">● Updated just now</div>
+      </div>
+
+      <div class="kpi-grid">
+        <article class="kpi-card"><div class="kpi-icon blue">🚆</div><div><span>Total Trains</span><strong>{{ summary().totalTrains | number }}</strong><small class="neutral">Across the network</small></div><div class="trend up">↑ 4.2%</div></article>
+        <article class="kpi-card"><div class="kpi-icon green">▶</div><div><span>Active Trains</span><strong>{{ summary().activeTrains | number }}</strong><small class="positive">↑ 2.8% vs yesterday</small></div><div class="trend up">↑ 2.8%</div></article>
+        <article class="kpi-card"><div class="kpi-icon orange">◷</div><div><span>Delayed Trains</span><strong>{{ summary().delayedTrains | number }}</strong><small class="negative">↑ 12.4% vs yesterday</small></div><div class="trend down">↑ 12.4%</div></article>
+        <article class="kpi-card"><div class="kpi-icon red">×</div><div><span>Cancelled</span><strong>{{ summary().cancelledTrains | number }}</strong><small class="positive">↓ 3.1% vs yesterday</small></div><div class="trend up">↓ 3.1%</div></article>
+      </div>
+
+      <div class="middle-grid">
+        <article class="panel performance-panel">
+          <div class="panel-heading"><div><h3>On-Time Performance</h3><p>Network performance for today</p></div><select><option>Today</option><option>Yesterday</option><option>Last 7 days</option></select></div>
+          <div class="performance-body">
+            <div class="score"><strong>{{ summary().onTimePercentage }}%</strong><span>On-time arrival</span><small>Target: 90%</small></div>
+            <div class="chart">
+              <div class="y-labels"><span>100%</span><span>90%</span><span>80%</span><span>70%</span></div>
+              <div class="chart-area"><div class="gridline one"></div><div class="gridline two"></div><div class="gridline three"></div><svg viewBox="0 0 620 180" preserveAspectRatio="none" aria-label="Performance chart"><polyline points="0,104 70,96 140,110 210,72 280,84 350,58 420,68 490,46 550,55 620,40" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="620" cy="40" r="6" fill="currentColor"/></svg><div class="x-labels"><span>06:00</span><span>09:00</span><span>12:00</span><span>15:00</span><span>18:00</span><span>Now</span></div></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel status-panel">
+          <div class="panel-heading"><div><h3>Train Status</h3><p>Current network distribution</p></div></div>
+          <div class="donut-wrap"><div class="donut"><div><strong>1,248</strong><span>Total</span></div></div><div class="legend"><span><i class="on-time"></i>On Time <b>1,004</b></span><span><i class="delayed"></i>Delayed <b>127</b></span><span><i class="boarding"></i>Boarding <b>103</b></span><span><i class="cancelled"></i>Cancelled <b>14</b></span></div></div>
+        </article>
+      </div>
+
+      <div class="bottom-grid">
+        <article class="panel train-panel">
+          <div class="panel-heading table-heading"><div><h3>Live Train Operations</h3><p>Real-time status of active services</p></div><div class="table-actions"><input [(ngModel)]="searchTerm" placeholder="Search train, route..."/><select [ngModel]="selectedStatus" (ngModelChange)="setStatus($event)"><option value="All">All status</option><option value="On Time">On Time</option><option value="Delayed">Delayed</option><option value="Boarding">Boarding</option><option value="Cancelled">Cancelled</option></select></div></div>
+          <div class="table-scroll"><table><thead><tr><th>TRAIN</th><th>ROUTE</th><th>PLATFORM</th><th>DEPARTURE</th><th>ARRIVAL</th><th>STATUS</th><th>DELAY</th></tr></thead><tbody><tr *ngFor="let train of filteredTrains(); trackBy: trackByTrain"><td><strong>{{ train.number }}</strong><span>{{ train.name }}</span></td><td>{{ train.route }}</td><td><span class="platform">{{ train.platform }}</span></td><td>{{ train.departure }}</td><td>{{ train.arrival }}</td><td><span class="status-pill" [class]="statusClass(train.status)"><i></i>{{ train.status }}</span></td><td [class.delay-value]="train.delayMinutes > 0">{{ train.delayMinutes ? '+' + train.delayMinutes + ' min' : '—' }}</td></tr><tr *ngIf="filteredTrains().length === 0"><td colspan="7" class="empty">No trains match your search.</td></tr></tbody></table></div>
+          <div class="table-footer">Showing <strong>{{ filteredTrains().length }}</strong> of {{ trains().length }} monitored trains <button>View all trains →</button></div>
+        </article>
+
+        <article class="panel alerts-panel"><div class="panel-heading"><div><h3>Operational Alerts</h3><p>Issues requiring attention</p></div><span class="alert-count">{{ alerts().length }}</span></div><div class="alerts-list"><div class="alert" *ngFor="let alert of alerts()"><div class="alert-marker" [class]="severityClass(alert.severity)">!</div><div><strong>{{ alert.title }}</strong><p>{{ alert.message }}</p><small>{{ alert.time }}</small></div></div></div><button class="view-alerts">View all alerts →</button></article>
+      </div>
+    </section>
+
+    <ng-template #sectionPlaceholder><section class="content"><div class="placeholder panel"><div class="placeholder-icon">🚆</div><h2>{{ activeNav }}</h2><p>This module is ready for API-backed functionality. The dashboard navigation is already wired for the next development phase.</p><button (click)="setNav('Dashboard')">← Back to dashboard</button></div></section></ng-template>
+  </main>
+</div>
