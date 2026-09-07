@@ -1,0 +1,25 @@
+# Angular
+frontend/**/node_modules/
+frontend/**/.angular/
+frontend/**/dist/
+frontend/**/.cache/
+
+# .NET
+backend/**/bin/
+backend/**/obj/
+backend/**/*.user
+backend/**/*.suo
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment / secrets
+.env
+*.local
+appsettings.Development.json
